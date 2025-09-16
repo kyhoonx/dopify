@@ -1,0 +1,57 @@
+{
+  "name": "dopify",
+  "version": "1.0.0",
+  "description": "미니멀하고 세련된 뮤직 플레이어 - Dopify",
+  "author": "User",
+  "main": "public/electron.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-build": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "music-metadata": "^7.13.3",
+    "chokidar": "^3.5.3",
+    "three": "^0.150.0",
+    "styled-components": "^5.3.9",
+    "lucide-react": "^0.263.1"
+  },
+  "devDependencies": {
+    "electron": "^24.0.0",
+    "concurrently": "^7.6.0",
+    "wait-on": "^7.0.1",
+    "electron-builder": "^23.6.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "build": {
+    "appId": "com.dopify.app",
+    "productName": "Dopify",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "build/**/*",
+      "public/electron.js",
+      "node_modules/**/*"
+    ]
+  }
+}
