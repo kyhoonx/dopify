@@ -4,6 +4,11 @@ import MusicPlayer from './components/MusicPlayer';
 import MusicLibrary from './components/MusicLibrary';
 import Visualizer from './components/Visualizer';
 import PlayerControls from './components/PlayerControls';
+import MusicInfo from './components/MusicInfo';
+import ToggleSwitch from './components/ToggleSwitch';
+import { useNetworkStatus } from './hooks/useNetworkStatus';
+import { useMusicInfoSettings } from './hooks/useMusicInfoSettings';
+import { Info } from 'lucide-react';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -86,6 +91,60 @@ const VisualizerSection = styled.div`
   flex: 1;
   position: relative;
   background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+  display: flex;
+  transition: all 0.3s ease;
+`;
+
+const ExpandedVisualizerSection = styled.div`
+  flex: 1;
+  position: relative;
+  background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+  
+  .enhanced-album-cover {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+    z-index: 1;
+  }
+`;
+
+const InfoToggleContainer = styled.div`
+  position: absolute;
+  top: ${props => props.theme.spacing.md};
+  right: ${props => props.theme.spacing.md};
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  border-radius: 20px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+const NetworkStatus = styled.div`
+  position: absolute;
+  bottom: ${props => props.theme.spacing.lg};
+  left: ${props => props.theme.spacing.lg};
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: ${props => props.theme.borderRadius};
+  padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.sm};
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  color: ${props => props.online ? props.theme.colors.accent : props.theme.colors.secondary};
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: ${props => props.show ? 1 : 0};
+  transition: opacity 0.3s ease;
 `;
 
 const PlayerSection = styled.div`
@@ -109,6 +168,10 @@ function App() {
   const [sortBy, setSortBy] = useState('artist'); // 'artist', 'title', 'album', 'liked'
   const [searchQuery, setSearchQuery] = useState('');
   const [likedTracks, setLikedTracks] = useState(new Set());
+
+  // 새로운 훅들
+  const networkStatus = useNetworkStatus();
+  const musicInfoSettings = useMusicInfoSettings();
   
   const audioRef = useRef(null);
   const analyserRef = useRef(null);
@@ -228,14 +291,10 @@ function App() {
     const audio = audioRef.current;
     if (!audio) return;
     
-    console.log('Attempting to play track:', track.title);
-    
     try {
-      // 현재 재생 중인 오디오 정지
       audio.pause();
       setIsPlaying(false);
       
-      // 트랙 변경
       if (currentTrack?.id !== track.id) {
         setCurrentTrack(track);
         
@@ -439,6 +498,10 @@ function App() {
       }
     });
 
+  // 음악 정보 패널 표시 여부 결정
+  const shouldShowMusicInfo = musicInfoSettings.isInfoPanelEnabled && 
+                             networkStatus.isOnline;
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
@@ -468,12 +531,39 @@ function App() {
             </LibrarySection>
             
             <VisualizerSection>
+              {/* 정보 패널 토글 스위치 */}
+              <InfoToggleContainer>
+                <ToggleSwitch
+                  checked={musicInfoSettings.isInfoPanelEnabled}
+                  onChange={musicInfoSettings.toggleInfoPanel}
+                  label="정보"
+                  icon={<Info size={12} />}
+                  tooltip="외부 API를 통해 음악 정보를 가져옵니다"
+                />
+              </InfoToggleContainer>
+
+              {/* 네트워크 상태 표시 */}
+              <NetworkStatus 
+                online={networkStatus.isOnline}
+                show={!networkStatus.isOnline || networkStatus.wasOffline}
+              >
+                {networkStatus.isOnline ? '🟢 온라인' : '🔴 오프라인'}
+              </NetworkStatus>
+
+              {/* 메인 시각화 영역 */}
               <Visualizer
                 analyser={analyserRef.current}
                 isPlaying={isPlaying}
                 currentTrack={currentTrack}
               />
             </VisualizerSection>
+
+            {/* 음악 정보 패널 (항상 마운트, 내부에서 표시 제어) */}
+            <MusicInfo
+              currentTrack={currentTrack}
+              isOnline={networkStatus.isOnline}
+              isVisible={shouldShowMusicInfo}
+            />
           </ContentArea>
           
           <PlayerSection>

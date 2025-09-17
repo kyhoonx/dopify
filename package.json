@@ -9,26 +9,33 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "proxy": "node proxy-server.js",
+    "dev": "concurrently \"npm run proxy\" \"npm start\"",
     "electron": "electron .",
     "electron-dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
     "electron-build": "npm run build && electron-builder",
     "dist": "npm run build && electron-builder --publish=never"
   },
   "dependencies": {
+    "axios": "^1.12.2",
+    "chokidar": "^3.5.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "lucide-react": "^0.263.1",
+    "music-metadata": "^7.13.3",
+    "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "music-metadata": "^7.13.3",
-    "chokidar": "^3.5.3",
-    "three": "^0.150.0",
     "styled-components": "^5.3.9",
-    "lucide-react": "^0.263.1"
+    "three": "^0.150.0"
   },
   "devDependencies": {
-    "electron": "^24.0.0",
     "concurrently": "^7.6.0",
-    "wait-on": "^7.0.1",
-    "electron-builder": "^23.6.0"
+    "electron": "^24.0.0",
+    "electron-builder": "^23.6.0",
+    "wait-on": "^7.0.1"
   },
   "browserslist": {
     "production": [

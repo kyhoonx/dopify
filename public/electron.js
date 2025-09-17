@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
 const path = require('path');
 const chokidar = require('chokidar');
 const fs = require('fs').promises;
@@ -34,6 +34,11 @@ function createWindow() {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+    
+    // 개발 환경에서는 자동으로 개발자 도구 열기
+    if (isDev) {
+      mainWindow.webContents.openDevTools();
+    }
   });
 
   mainWindow.on('closed', () => {
@@ -41,9 +46,29 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  
+  // 개발자 도구 토글 단축키 등록 (F12 또는 Cmd+Option+I)
+  globalShortcut.register('F12', () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    if (focusedWindow) {
+      focusedWindow.webContents.toggleDevTools();
+    }
+  });
+  
+  globalShortcut.register('CommandOrControl+Option+I', () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    if (focusedWindow) {
+      focusedWindow.webContents.toggleDevTools();
+    }
+  });
+});
 
 app.on('window-all-closed', () => {
+  // 전역 단축키 정리
+  globalShortcut.unregisterAll();
+  
   if (process.platform !== 'darwin') {
     app.quit();
   }

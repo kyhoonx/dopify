@@ -1,150 +1,127 @@
-# 🎵 Dopify
+# 🎵 AI Music Player
 
-**미니멀하고 세련된 데스크톱 뮤직 플레이어**
-
-Dopify는 React와 Electron으로 구축된 현대적이고 아름다운 음악 플레이어입니다. 깔끔한 UI와 직관적인 사용자 경험을 제공하여 음악 감상에만 집중할 수 있도록 설계되었습니다.
-
-![Dopify Screenshot](https://via.placeholder.com/800x450/0a0a0a/1ed760?text=Dopify)
+미니멀한 디자인의 음악 플레이어에 Google Gemini AI가 제공하는 음악 정보 기능이 추가된 데스크톱 앱입니다.
 
 ## ✨ 주요 기능
 
-### 🎨 **미니멀한 디자인**
-- 앨범 커버 중심의 깔끔한 레이아웃
-- 다크 테마와 초록색 포인트 컬러
-- 부드러운 애니메이션과 트랜지션
-
-### 🌊 **실시간 오디오 시각화**
-- 음악에 반응하는 라디오 웨이브
-- 50개의 세로 바로 구성된 심플한 스펙트럼
-- 재생/일시정지 상태에 따른 동적 애니메이션
-
-### 💖 **좋아요 시스템**
-- 개별 트랙 좋아요 기능
-- 좋아요한 음악만 필터링
-- localStorage 기반 데이터 지속성
-
-### 🎵 **완전한 플레이어 기능**
-- 자동 다음 곡 재생
-- 셔플 및 반복 재생 모드
-- 볼륨 조절 및 진행률 바
-- 키보드 단축키 지원
-
-### 📁 **스마트 라이브러리**
-- 자동 음악 파일 감지
-- 아티스트/제목/앨범/좋아요 순 정렬
-- 실시간 검색 기능
-- 앨범 아트 자동 표시
+- **미니멀한 UI**: 앨범 커버 중심의 깔끔한 디자인
+- **심플한 시각화**: 음악에 반응하는 라디오 웨이브 애니메이션
+- **AI 음악 정보**: Google Gemini API 기반 상세 음악 정보 제공
+- **스마트 캐싱**: 24시간 자동 캐시로 API 사용량 최적화
+- **자동 로드**: 캐시된 정보 즉시 표시
 
 ## 🚀 설치 및 실행
 
-### 개발 환경 실행
+### 1. 저장소 클론
+```bash
+git clone <repository-url>
+cd music\ frontend
+```
+
+### 2. 의존성 설치
+```bash
+npm install
+```
+
+### 3. 환경변수 설정
+`.env.example` 파일을 복사하여 `.env` 파일을 생성하고 API 키를 입력하세요:
 
 ```bash
-# 저장소 클론
-git clone https://github.com/your-username/dopify.git
-cd dopify
+cp .env.example .env
+```
 
-# 종속성 설치
-npm install
+`.env` 파일을 열어서 다음과 같이 설정:
+```env
+# Google Cloud Console에서 발급받은 Gemini API 키를 입력
+GEMINI_API_KEY=your_actual_api_key_here
+REACT_APP_GEMINI_API_KEY=your_actual_api_key_here
+```
 
-# 개발 서버 실행
+### 4. 애플리케이션 실행
+
+#### 개발 모드 (권장)
+```bash
+npm run dev
+```
+- React 앱과 프록시 서버가 동시에 실행됩니다
+- 프록시 서버: http://localhost:3001
+- React 앱: http://localhost:3000
+
+#### 각각 실행
+```bash
+# 터미널 1: 프록시 서버
+npm run proxy
+
+# 터미널 2: React 앱
+npm start
+
+# 터미널 3: Electron 앱
 npm run electron-dev
 ```
 
-### 배포판 빌드
-
+#### 독립 실행형 앱
 ```bash
-# 프로덕션 빌드
-npm run build
-
-# 설치 파일 생성
+# 앱 빌드
 npm run dist
+
+# 실행 스크립트 (Mac)
+./start-music-player.command
 ```
+
+## 🔑 Google Gemini API 키 발급
+
+1. [Google Cloud Console](https://console.cloud.google.com/)에 접속
+2. 새 프로젝트 생성 또는 기존 프로젝트 선택
+3. API 및 서비스 > 라이브러리에서 "Generative Language API" 검색 및 활성화
+4. API 및 서비스 > 사용자 인증 정보에서 "API 키 만들기"
+5. 생성된 API 키를 `.env` 파일에 입력
 
 ## 📁 프로젝트 구조
 
 ```
-dopify/
+music frontend/
 ├── src/
-│   ├── App.js                 # 메인 앱 컴포넌트
 │   ├── components/
-│   │   ├── MusicLibrary.js    # 음악 라이브러리
-│   │   ├── PlayerControls.js  # 플레이어 컨트롤
-│   │   └── Visualizer.js      # 오디오 시각화
-│   └── index.js
-├── public/
-│   ├── electron.js            # Electron 메인 프로세스
-│   └── preload.js
-├── music/                     # 음악 파일 폴더
-└── dist/                      # 빌드된 앱 파일들
+│   │   ├── MusicInfo.js      # AI 음악 정보 패널
+│   │   ├── MusicPlayer.js    # 음악 플레이어
+│   │   └── Visualizer.js     # 라디오 웨이브 시각화
+│   ├── services/
+│   │   └── geminiApi.js      # Gemini API 서비스
+│   └── hooks/                # React 커스텀 훅들
+├── music/                    # 음악 파일 폴더
+├── proxy-server.js           # CORS 프록시 서버
+├── .env.example              # 환경변수 예시 파일
+└── PROJECT_HISTORY.md        # 개발 히스토리
 ```
 
-## 🎵 지원 형식
+## 🎯 사용법
 
-- **MP3** - 가장 일반적인 형식
-- **WAV** - 고품질 무손실
-- **FLAC** - 무손실 압축
-- **M4A** - Apple 형식
+1. `music/` 폴더에 음악 파일 추가 (MP3, WAV, FLAC, M4A 지원)
+2. 애플리케이션 실행
+3. 음악 선택 및 재생
+4. 우상단 "정보" 토글 버튼으로 AI 음악 정보 패널 활성화
+5. 캐시된 곡은 자동으로 정보 표시, 새 곡은 "정보 로드" 버튼 클릭
 
-## 🔧 기술 스택
+## ⚠️ 주의사항
+
+- `.env` 파일은 Git에 커밋되지 않습니다 (API 키 보안)
+- Gemini API는 사용량에 따라 과금될 수 있습니다
+- 네트워크 연결이 필요합니다 (음악 정보 기능)
+
+## 🛠 기술 스택
 
 - **Frontend**: React 18.2.0, Styled Components
 - **Desktop**: Electron 24.0.0
+- **AI**: Google Gemini 1.5 Flash API
+- **Proxy**: Express.js + Axios
 - **Audio**: Web Audio API, music-metadata
-- **Visualization**: HTML5 Canvas
-- **Build**: electron-builder
+- **Cache**: localStorage (24시간 TTL)
 
-## 🎨 디자인 철학
+## 📝 라이선스
 
-Dopify는 "음악에만 집중"할 수 있는 환경을 제공합니다:
-
-- **미니멀리즘**: 불필요한 요소 제거, 핵심 기능에 집중
-- **직관성**: 복잡한 설명 없이도 쉽게 사용할 수 있는 UI
-- **아름다움**: 시각적으로 즐거운 경험 제공
-- **성능**: 빠르고 반응성 좋은 인터페이스
-
-## 📝 사용법
-
-1. **음악 추가**: `music` 폴더에 음악 파일을 복사
-2. **재생**: 라이브러리에서 곡을 클릭하거나 플레이 버튼 사용
-3. **좋아요**: 하트 아이콘을 클릭하여 좋아하는 곡 표시
-4. **필터링**: 상단의 칩을 사용하여 정렬 및 필터링
-
-## 🔄 자동 재생 기능
-
-- 한 곡이 끝나면 자동으로 다음 곡 재생
-- 반복 모드: 없음 / 전체 반복 / 한 곡 반복
-- 셔플 모드: 랜덤 순서로 재생
-
-## 🎯 로드맵
-
-- [ ] 플레이리스트 기능
-- [ ] 이퀄라이저
-- [ ] 키보드 단축키 커스터마이징
-- [ ] 테마 선택 기능
-- [ ] 가사 표시
-- [ ] 스트리밍 서비스 연동
-
-## 🤝 기여하기
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
-
-## 🙏 감사의 말
-
-- [React](https://reactjs.org/) - UI 라이브러리
-- [Electron](https://www.electronjs.org/) - 데스크톱 앱 프레임워크
-- [Styled Components](https://styled-components.com/) - CSS-in-JS
-- [Lucide React](https://lucide.dev/) - 아이콘 라이브러리
-- [music-metadata](https://github.com/borewit/music-metadata) - 음악 메타데이터 파싱
+이 프로젝트는 개인 사용 목적으로 제작되었습니다.
 
 ---
 
-**Dopify**로 더 나은 음악 경험을 즐겨보세요! 🎶
+*개발 완료: 2025년 9월 15일*  
+*AI 기능 추가: 2025년 9월 17일*
