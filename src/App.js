@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import MusicPlayer from './components/MusicPlayer';
 import MusicLibrary from './components/MusicLibrary';
@@ -168,6 +168,8 @@ function App() {
   const [sortBy, setSortBy] = useState('artist'); // 'artist', 'title', 'album', 'liked'
   const [searchQuery, setSearchQuery] = useState('');
   const [likedTracks, setLikedTracks] = useState(new Set());
+  const [isMuted, setIsMuted] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState(0.7);
 
   // 새로운 훅들
   const networkStatus = useNetworkStatus();
@@ -459,12 +461,30 @@ function App() {
     }
   };
 
-  const handleVolumeChange = (newVolume) => {
+  const handleVolumeChange = useCallback((newVolume) => {
     setVolume(newVolume);
+    setIsMuted(newVolume === 0);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
-  };
+  }, []);
+
+  // 단순한 키보드 단축키 (성능 최적화)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // 입력 필드 무시
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      // 기본 단축키만
+      if (e.key === ' ') {
+        e.preventDefault();
+        togglePlayPause();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [togglePlayPause]);
 
   // 음악 필터링 및 정렬
   const filteredAndSortedMusic = musicFiles

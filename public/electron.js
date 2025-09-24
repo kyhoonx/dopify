@@ -4,8 +4,8 @@ const chokidar = require('chokidar');
 const fs = require('fs').promises;
 const mm = require('music-metadata');
 
-// Development 환경 체크
-const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+// Development 환경 체크 - app.isPackaged는 app.whenReady() 이후에 사용
+const isDev = process.env.NODE_ENV === 'development' || process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) || /[\\/]electron[\\/]/.test(process.execPath);
 
 let mainWindow;
 
@@ -35,10 +35,10 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     
-    // 개발 환경에서는 자동으로 개발자 도구 열기
-    if (isDev) {
-      mainWindow.webContents.openDevTools();
-    }
+    // 개발자 도구는 단축키(F12, Cmd+Option+I)로만 열도록 변경
+    // if (isDev) {
+    //   mainWindow.webContents.openDevTools();
+    // }
   });
 
   mainWindow.on('closed', () => {

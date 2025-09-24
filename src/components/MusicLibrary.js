@@ -163,7 +163,9 @@ const TrackActions = styled.div`
   flex-shrink: 0;
 `;
 
-const LikeIcon = styled(Heart)`
+const LikeIcon = styled(Heart).withConfig({
+  shouldForwardProp: (prop) => prop !== 'liked',
+})`
   width: 16px;
   height: 16px;
   color: ${props => props.liked ? '#e91e63' : 'transparent'};

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { 
   Play, 
@@ -195,6 +195,15 @@ const VolumeBar = styled.div`
   border-radius: 2px;
   position: relative;
   cursor: pointer;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    
+    .volume-handle {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
 `;
 
 const VolumeFill = styled.div`
@@ -202,6 +211,26 @@ const VolumeFill = styled.div`
   background: ${props => props.theme.colors.accent};
   border-radius: 2px;
   width: ${props => props.volume * 100}%;
+  position: relative;
+`;
+
+const VolumeHandle = styled.div`
+  position: absolute;
+  left: ${props => props.volume * 100}%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 12px;
+  height: 12px;
+  background: ${props => props.theme.colors.primary};
+  border-radius: 50%;
+  cursor: grab;
+  opacity: 0;
+  transition: all 0.2s ease;
+  
+  &:active {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
 `;
 
 function formatTime(seconds) {
@@ -239,12 +268,45 @@ function PlayerControls({
     onSeek(newTime);
   };
 
+  const [isDragging, setIsDragging] = useState(false);
+  const volumeBarRef = useRef(null);
+
   const handleVolumeClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const newVolume = Math.max(0, Math.min(1, clickX / rect.width));
     onVolumeChange(newVolume);
   };
+
+  const handleVolumeMouseDown = (e) => {
+    setIsDragging(true);
+    handleVolumeClick(e);
+  };
+
+  const handleVolumeMouseMove = (e) => {
+    if (isDragging && volumeBarRef.current) {
+      const rect = volumeBarRef.current.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const newVolume = Math.max(0, Math.min(1, clickX / rect.width));
+      onVolumeChange(newVolume);
+    }
+  };
+
+  const handleVolumeMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleVolumeMouseMove);
+      document.addEventListener('mouseup', handleVolumeMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleVolumeMouseMove);
+        document.removeEventListener('mouseup', handleVolumeMouseUp);
+      };
+    }
+  }, [isDragging]);
 
   const getArtworkData = (track) => {
     if (track?.artwork && track.artwork.data) {
@@ -320,8 +382,13 @@ function PlayerControls({
         <ControlButton onClick={() => onVolumeChange(volume > 0 ? 0 : 0.7)}>
           {volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </ControlButton>
-        <VolumeBar onClick={handleVolumeClick}>
+        <VolumeBar 
+          ref={volumeBarRef}
+          onClick={handleVolumeClick}
+          onMouseDown={handleVolumeMouseDown}
+        >
           <VolumeFill volume={volume} />
+          <VolumeHandle className="volume-handle" volume={volume} />
         </VolumeBar>
       </VolumeSection>
     </Container>
