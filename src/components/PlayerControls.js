@@ -11,7 +11,8 @@ import {
   Repeat, 
   Repeat1,
   Music,
-  Heart
+  Heart,
+  Info
 } from 'lucide-react';
 
 const Container = styled.div`
@@ -139,7 +140,7 @@ const PlayButton = styled(ControlButton)`
   height: 40px;
 
   &:hover {
-    background: #1fdf64;
+    background: #E9D5FF;
     color: #000;
   }
 `;
@@ -256,7 +257,9 @@ function PlayerControls({
   onShuffleToggle,
   onRepeatToggle,
   isLiked,
-  onToggleLike
+  onToggleLike,
+  showInfoPanel,
+  onToggleInfoPanel
 }) {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
@@ -357,7 +360,7 @@ function PlayerControls({
           </ControlButton>
           
           <PlayButton onClick={onPlayPause} disabled={!currentTrack}>
-            {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+            {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" style={{ marginLeft: '2px' }} />}
           </PlayButton>
           
           <ControlButton onClick={onNext}>
@@ -379,6 +382,15 @@ function PlayerControls({
       </ControlsSection>
 
       <VolumeSection>
+        <ControlButton 
+          onClick={onToggleInfoPanel} 
+          active={showInfoPanel}
+          title="음악 정보"
+          style={{ marginRight: '8px' }}
+        >
+          <Info size={18} />
+        </ControlButton>
+        
         <ControlButton onClick={() => onVolumeChange(volume > 0 ? 0 : 0.7)}>
           {volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </ControlButton>

@@ -47,7 +47,7 @@ const theme = {
   colors: {
     primary: '#ffffff',
     secondary: '#b3b3b3',
-    accent: '#1ed760',
+    accent: '#C084FC',
     background: '#000000',
     surface: '#181818',
     surfaceLight: '#282828',
@@ -551,17 +551,6 @@ function App() {
             </LibrarySection>
             
             <VisualizerSection>
-              {/* 정보 패널 토글 스위치 */}
-              <InfoToggleContainer>
-                <ToggleSwitch
-                  checked={musicInfoSettings.isInfoPanelEnabled}
-                  onChange={musicInfoSettings.toggleInfoPanel}
-                  label="정보"
-                  icon={<Info size={12} />}
-                  tooltip="외부 API를 통해 음악 정보를 가져옵니다"
-                />
-              </InfoToggleContainer>
-
               {/* 네트워크 상태 표시 */}
               <NetworkStatus 
                 online={networkStatus.isOnline}
@@ -608,6 +597,8 @@ function App() {
               }}
               isLiked={currentTrack ? isTrackLiked(currentTrack.id) : false}
               onToggleLike={() => currentTrack && toggleLike(currentTrack.id)}
+              showInfoPanel={musicInfoSettings.isInfoPanelEnabled}
+              onToggleInfoPanel={musicInfoSettings.toggleInfoPanel}
             />
           </PlayerSection>
         </MainContent>

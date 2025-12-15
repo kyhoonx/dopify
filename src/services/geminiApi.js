@@ -7,8 +7,11 @@
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'API_KEY_NOT_CONFIGURED';
 // 사용 가능한 Gemini 모델들 (fallback 순서)
 const GEMINI_MODELS = [
+  'gemini-2.0-flash-exp',
   'gemini-1.5-flash',
+  'gemini-1.5-flash-latest',
   'gemini-1.5-pro',
+  'gemini-1.5-pro-latest',
   'gemini-pro'
 ];
 
@@ -133,31 +136,32 @@ export function clearCache(cacheKey = null) {
  * @returns {Promise<Object>} 음악 정보 객체
  */
 async function fetchMusicInfoWithRetry(artist, album, track, signal, retryCount = 0) {
-  const MAX_RETRIES = 3;
-  const RETRY_DELAYS = [2000, 5000, 10000]; // 2초, 5초, 10초
+  // 모델 수보다 넉넉하게 재시도 횟수 설정
+  const MAX_RETRIES = GEMINI_MODELS.length + 2;
 
   try {
     return await fetchMusicInfoFromGeminiInternal(artist, album, track, signal);
   } catch (error) {
     if (error.name === 'AbortError') {
-      throw error; // 사용자 취소는 재시도하지 않음
+      throw error;
     }
 
-    // 503 오류이고 재시도 횟수가 남아있으면 재시도
-    if (error.message.includes('503') || error.message.includes('overloaded')) {
-      if (retryCount < MAX_RETRIES) {
-        const delay = RETRY_DELAYS[retryCount] || RETRY_DELAYS[RETRY_DELAYS.length - 1];
-        console.log(`503 오류 감지됨. ${delay/1000}초 후 재시도... (${retryCount + 1}/${MAX_RETRIES})`);
-        
-        // 지연 시간 동안 대기
-        await new Promise(resolve => setTimeout(resolve, delay));
-        
-        // 재시도
-        return await fetchMusicInfoWithRetry(artist, album, track, signal, retryCount + 1);
-      }
+    console.warn(`API 호출 실패 (${GEMINI_MODELS[currentModelIndex]}):`, error.message);
+
+    // 재시도 가능한 경우 (모든 에러에 대해 모델 변경 시도)
+    if (retryCount < MAX_RETRIES) {
+      // 다음 모델로 변경
+      currentModelIndex = (currentModelIndex + 1) % GEMINI_MODELS.length;
+      console.log(`🔄 모델 변경 후 재시도: ${GEMINI_MODELS[currentModelIndex]} (${retryCount + 1}/${MAX_RETRIES})`);
+      
+      // 1초 대기 후 재시도
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return await fetchMusicInfoWithRetry(artist, album, track, signal, retryCount + 1);
     }
     
-    throw error; // 재시도 불가능한 오류이거나 최대 재시도 횟수 초과
+    // 모든 재시도 실패 시 기본 정보 반환
+    console.error('모든 재시도 실패. 기본 정보 반환.');
+    return createFallbackMusicInfo(artist, album, track, error.message);
   }
 }
 
@@ -371,8 +375,8 @@ JSON 외의 다른 텍스트는 포함하지 말고, 정확한 JSON 형식으로
       console.log('CORS 오류 감지됨. 프록시 사용을 고려해보세요.');
     }
     
-    // 오류 발생 시 기본 구조 반환
-    return createFallbackMusicInfo(artist, album, track, error.message);
+    // 오류 발생 시 상위 함수로 에러 전파 (재시도 로직을 위해)
+    throw error;
   }
 }
 

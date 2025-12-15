@@ -199,7 +199,7 @@ function Visualizer({ analyser, isPlaying, currentTrack }) {
       const barWidth = width / barCount;
       const time = Date.now() * 0.001;
       
-      ctx.fillStyle = '#1ed760';
+      ctx.fillStyle = '#C084FC';
       
       for (let i = 0; i < barCount; i++) {
         const x = i * barWidth + barWidth / 2;
@@ -232,7 +232,7 @@ function Visualizer({ analyser, isPlaying, currentTrack }) {
         resampledData[i] = sum / chunkSize;
       }
       
-      ctx.fillStyle = '#1ed760';
+      ctx.fillStyle = '#C084FC';
       
       for (let i = 0; i < barCount; i++) {
         const x = i * barWidth + barWidth / 2;
@@ -267,19 +267,19 @@ function Visualizer({ analyser, isPlaying, currentTrack }) {
       <BackgroundWaves>
         <Wave 
           height={60} 
-          color="rgba(30, 215, 96, 0.05)" 
+          color="rgba(192, 132, 252, 0.05)" 
           scale={1.5} 
           duration={8}
         />
         <Wave 
           height={40} 
-          color="rgba(30, 215, 96, 0.03)" 
+          color="rgba(192, 132, 252, 0.03)" 
           scale={1.2} 
           duration={12}
         />
         <Wave 
           height={80} 
-          color="rgba(30, 215, 96, 0.02)" 
+          color="rgba(192, 132, 252, 0.02)" 
           scale={1.8} 
           duration={15}
         />

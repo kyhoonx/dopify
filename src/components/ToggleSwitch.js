@@ -52,7 +52,7 @@ const SwitchSlider = styled.span`
 
   &:hover {
     background-color: ${props => props.checked ? 
-      '#1ed760' : 
+      '#E9D5FF' : 
       'rgba(255, 255, 255, 0.35)'
     };
   }

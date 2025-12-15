@@ -65,7 +65,7 @@ const Button = styled.button`
   transition: all 0.2s ease;
   
   &:hover {
-    background: ${props => props.primary ? '#1ed760' : 'rgba(255, 255, 255, 0.12)'};
+    background: ${props => props.primary ? '#C084FC' : 'rgba(255, 255, 255, 0.12)'};
     border-color: ${props => props.primary ? 'transparent' : 'rgba(255, 255, 255, 0.2)'};
     transform: translateY(-1px);
   }
@@ -370,6 +370,11 @@ function MusicInfo({ currentTrack, isOnline, isVisible = true }) {
     };
   }, []);
 
+  // 보이지 않을 때는 빈 div 반환하지만 컴포넌트는 마운트 유지
+  if (!isVisible) {
+    return <div style={{ display: 'none' }} />;
+  }
+
   // 이 useEffect는 제거됨 - 위의 메인 useEffect에서 처리
 
   // 공통 헤더 렌더링
@@ -493,11 +498,6 @@ function MusicInfo({ currentTrack, isOnline, isVisible = true }) {
         </Content>
       </Container>
     );
-  }
-
-  // 보이지 않을 때는 빈 div 반환하지만 컴포넌트는 마운트 유지
-  if (!isVisible) {
-    return <div style={{ display: 'none' }} />;
   }
 
   return (
