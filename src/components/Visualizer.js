@@ -139,6 +139,8 @@ function Visualizer({ analyser, isPlaying, currentTrack }) {
   const canvasRef = useRef(null);
   const animationIdRef = useRef(null);
   const audioDataRef = useRef(new Uint8Array(128));
+  // 메모리 최적화를 위해 리샘플링 데이터 배열 재사용
+  const resampledDataRef = useRef(new Float32Array(50)); // barCount가 50이므로
 
   // 앨범 아트워크 데이터 추출
   const getArtworkData = (track) => {
@@ -217,8 +219,8 @@ function Visualizer({ analyser, isPlaying, currentTrack }) {
       const barWidth = width / barCount;
       const time = Date.now() * 0.001;
       
-      // 오디오 데이터를 더 적은 바로 리샘플링
-      const resampledData = [];
+      // 오디오 데이터를 더 적은 바로 리샘플링 (메모리 재사용)
+      const resampledData = resampledDataRef.current;
       const chunkSize = Math.floor(audioData.length / barCount);
       
       for (let i = 0; i < barCount; i++) {

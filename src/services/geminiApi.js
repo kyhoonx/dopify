@@ -32,10 +32,6 @@ function getGeminiApiUrl() {
   return `${GEMINI_API_BASE_URL}/${model}:generateContent`;
 }
 
-// 로컬 프록시 서버 설정 (제거됨)
-// const PROXY_SERVER_URL = 'http://localhost:3001/api/gemini';
-// const USE_PROXY = false; // 프록시 사용 안 함 (클라이언트 직접 호출)
-
 // 캐시 저장소 (로컬 스토리지 기반)
 const CACHE_KEY_PREFIX = 'gemini_music_cache_v5_'; // v5: 키 생성 로직 변경에 따른 초기화
 const CACHE_EXPIRY_HOURS = 24 * 7; // 캐시 유효 기간 7일로 연장

@@ -251,12 +251,26 @@ useEffect(() => {
 
 ---
 
+### 9단계: 코드 효율화 및 최적화 (2025년 12월 17일)
+**진행사항**:
+- **의존성 최적화**: 사용하지 않는 `three` 라이브러리 제거 (번들 크기 감소)
+- **렌더링 성능 개선**: `App.js`에서 음악 리스트 필터링/정렬 로직에 `useMemo` 적용
+- **메모리 최적화**: `Visualizer.js`에서 애니메이션 루프 내 배열 생성 로직 수정 (GC 부하 감소)
+- **코드 정리**: `geminiApi.js` 내 미사용 레거시 코드 정리
+
+**성능 향상**:
+- 불필요한 리렌더링 방지
+- 애니메이션 프레임 드랍 방지 및 메모리 효율성 증대
+- 빌드 사이즈 최적화
+
+---
+
 ## 🔧 현재 기술 스택 (업데이트)
 
 - **Frontend**: React 18.2.0, Styled Components
 - **Desktop**: Electron 24.0.0  
 - **Audio**: Web Audio API, music-metadata
-- **Visualization**: HTML5 Canvas
+- **Visualization**: HTML5 Canvas (최적화됨)
 - **AI Integration**: Google Gemini 1.5 Flash API
 - **Proxy Server**: Express.js + Axios
 - **Cache**: localStorage (24시간 TTL)
@@ -270,14 +284,14 @@ useEffect(() => {
 ```
 music frontend/
 ├── src/
-│   ├── App.js                      # 메인 앱 컴포넌트
+│   ├── App.js                      # 메인 앱 컴포넌트 (최적화됨)
 │   ├── components/
 │   │   ├── MusicInfo.js           # 🆕 AI 음악 정보 패널
 │   │   ├── MusicLibrary.js        # 음악 라이브러리
 │   │   ├── MusicPlayer.js         # 플레이어 컴포넌트
 │   │   ├── PlayerControls.js      # 플레이어 컨트롤
 │   │   ├── ToggleSwitch.js        # 🆕 토글 스위치 컴포넌트
-│   │   └── Visualizer.js          # 🎨 미니멀 시각화
+│   │   └── Visualizer.js          # 🎨 미니멀 시각화 (최적화됨)
 │   ├── hooks/
 │   │   ├── useMusicInfoSettings.js # 🆕 음악 정보 설정 관리
 │   │   └── useNetworkStatus.js     # 🆕 네트워크 상태 감지
@@ -308,10 +322,10 @@ music frontend/
 🆕 **스마트 캐싱**: 자동 캐시 관리 및 만료 처리  
 ✅ **완벽한 자동 로드**: 캐시된 정보 즉시 표시 (버튼 클릭 불필요)  
 🆕 **안정적 API**: 재시도 로직 및 에러 처리  
-🆕 **코드 최적화**: 효율적이고 깔끔한 코드베이스  
+🆕 **코드 최적화**: `useMemo` 및 캔버스 메모리 최적화 적용  
 
 ---
 
 *개발 완료일: 2025년 9월 15일*  
 *Gemini API 통합: 2025년 9월 17일*  
-*최종 업데이트: 코드 최적화 및 자동 로드 기능 완성*
+*최종 업데이트: 2025년 12월 17일 (성능 최적화)*

@@ -532,37 +532,38 @@ function App() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [togglePlayPause]);
 
-  // 음악 필터링 및 정렬
-  const filteredAndSortedMusic = musicFiles
-    .filter(track => {
-      // 검색 필터
-      const matchesSearch = track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        track.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        track.album.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // 좋아요 필터
-      const matchesLiked = sortBy === 'liked' ? likedTracks.has(track.id) : true;
-      
-      return matchesSearch && matchesLiked;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'title':
-          return a.title.localeCompare(b.title);
-        case 'album':
-          return a.album.localeCompare(b.album);
-        case 'liked':
-          // 좋아요 순 정렬 (좋아요 먼저, 그 다음 아티스트명)
-          const aLiked = likedTracks.has(a.id);
-          const bLiked = likedTracks.has(b.id);
-          if (aLiked && !bLiked) return -1;
-          if (!aLiked && bLiked) return 1;
-          return a.artist.localeCompare(b.artist);
-        case 'artist':
-        default:
-          return a.artist.localeCompare(b.artist);
-      }
-    });
+  const filteredAndSortedMusic = React.useMemo(() => {
+    return musicFiles
+      .filter(track => {
+        // 검색 필터
+        const matchesSearch = track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          track.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          track.album.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        // 좋아요 필터
+        const matchesLiked = sortBy === 'liked' ? likedTracks.has(track.id) : true;
+        
+        return matchesSearch && matchesLiked;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case 'title':
+            return a.title.localeCompare(b.title);
+          case 'album':
+            return a.album.localeCompare(b.album);
+          case 'liked':
+            // 좋아요 순 정렬 (좋아요 먼저, 그 다음 아티스트명)
+            const aLiked = likedTracks.has(a.id);
+            const bLiked = likedTracks.has(b.id);
+            if (aLiked && !bLiked) return -1;
+            if (!aLiked && bLiked) return 1;
+            return a.artist.localeCompare(b.artist);
+          case 'artist':
+          default:
+            return a.artist.localeCompare(b.artist);
+        }
+      });
+  }, [musicFiles, searchQuery, sortBy, likedTracks]);
 
   // 음악 정보 패널 표시 여부 결정
   const shouldShowMusicInfo = musicInfoSettings.isInfoPanelEnabled && 
