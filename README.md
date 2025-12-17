@@ -49,20 +49,17 @@ REACT_APP_GEMINI_API_KEY=your_actual_api_key_here
 ./start-music-player.command
 
 # 또는 npm 명령어로
-npm run electron-dev-full
+npm run electron-dev
 ```
-- 프록시 서버, React 앱, Electron 앱이 모두 자동으로 실행됩니다
+- React 앱, Electron 앱이 자동으로 실행됩니다
 - 실행 전 기존 프로세스를 자동으로 정리합니다
 
 #### 🔧 개별 실행 (개발용)
 ```bash
-# 터미널 1: 프록시 서버
-npm run proxy
-
-# 터미널 2: React 앱
+# 터미널 1: React 앱
 BROWSER=none npm start
 
-# 터미널 3: Electron 앱
+# 터미널 2: Electron 앱
 npm run electron
 ```
 
@@ -105,7 +102,6 @@ music frontend/
 │   ├── preload.js              # Electron 프리로드 스크립트
 │   └── index.html              # HTML 템플릿
 ├── music/                      # 음악 파일 폴더
-├── proxy-server.js             # CORS 프록시 서버
 ├── start-music-player.command  # 앱 실행 스크립트
 ├── .env.example                # 환경변수 예시 파일
 └── PROJECT_HISTORY.md          # 개발 히스토리
@@ -137,7 +133,6 @@ music frontend/
 - **Frontend**: React 18.2.0, Styled Components
 - **Desktop**: Electron 24.0.0
 - **AI**: Google Gemini 1.5 Flash API
-- **Proxy**: Express.js + Axios
 - **Audio**: Web Audio API, music-metadata
 - **Cache**: localStorage (24시간 TTL)
 
