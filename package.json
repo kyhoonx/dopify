@@ -1,4 +1,5 @@
 {
+    "homepage": "./",
   "name": "dopify",
   "version": "1.0.0",
   "description": "미니멀하고 세련된 뮤직 플레이어 - Dopify",
@@ -9,28 +10,22 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "proxy": "node proxy-server.js",
-    "dev": "concurrently \"npm run proxy\" \"npm start\"",
     "electron": "electron .",
     "electron-dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron-dev-full": "concurrently --kill-others --prefix-colors \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"npm run proxy\" \"BROWSER=none npm start\" \"sleep 10 && electron .\"",
     "electron-build": "npm run build && electron-builder",
     "dist": "npm run build && electron-builder --publish=never"
   },
   "dependencies": {
     "axios": "^1.12.2",
     "chokidar": "^3.5.3",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
     "lucide-react": "^0.263.1",
     "music-metadata": "^7.13.3",
-    "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.9",
-    "three": "^0.150.0"
+    "three": "^0.150.0",
+    "electron-store": "^8.1.0"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",
@@ -56,10 +51,19 @@
     "directories": {
       "output": "dist"
     },
+    "extraResources": [
+      "assets/**"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.music",
+      "icon": "assets/icon.png"
+    },
     "files": [
       "build/**/*",
       "public/electron.js",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "assets/**/*"
     ]
   }
 }

@@ -7,7 +7,15 @@ import { fetchArtistImageFromItunes } from './itunesApi';
 import { fetchArtistDataFromSpotify } from './spotifyApi';
 
 // 환경변수에서 API 키 로드 (React 앱에서는 REACT_APP_ 접두사 필요)
-const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'API_KEY_NOT_CONFIGURED';
+// const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'API_KEY_NOT_CONFIGURED';
+
+let GEMINI_API_KEY = 'API_KEY_NOT_CONFIGURED';
+
+export function setGeminiApiKey(key) {
+  GEMINI_API_KEY = key;
+  console.log('Gemini API Key가 설정되었습니다.');
+}
+
 // 사용 가능한 Gemini 모델들
 const GEMINI_MODELS = [
   'gemini-2.0-flash',     // 1순위: 사용자 계정에서 확인된 최신 모델
@@ -24,9 +32,9 @@ function getGeminiApiUrl() {
   return `${GEMINI_API_BASE_URL}/${model}:generateContent`;
 }
 
-// 로컬 프록시 서버 설정
-const PROXY_SERVER_URL = 'http://localhost:3001/api/gemini';
-const USE_PROXY = true; // 프록시 사용 여부 (CORS 해결을 위해 기본 활성화)
+// 로컬 프록시 서버 설정 (제거됨)
+// const PROXY_SERVER_URL = 'http://localhost:3001/api/gemini';
+// const USE_PROXY = false; // 프록시 사용 안 함 (클라이언트 직접 호출)
 
 // 캐시 저장소 (로컬 스토리지 기반)
 const CACHE_KEY_PREFIX = 'gemini_music_cache_v5_'; // v5: 키 생성 로직 변경에 따른 초기화
@@ -253,9 +261,9 @@ export async function fetchMusicInfoFromGemini(artist, album, track, signal) {
 async function fetchMusicInfoFromGeminiInternal(artist, album, track, signal) {
   const cacheKey = generateCacheKeyV2(artist, album, track);
   
-  // API 키 미설정 시 경고 (단, 프록시 서버에 설정되어 있을 수 있으므로 차단하진 않음)
+  // API 키 미설정 시 경고
   if (GEMINI_API_KEY.includes('NOT_CONFIGURED')) {
-    console.warn('⚠️ 클라이언트 측 Gemini API 키가 설정되지 않았습니다. 프록시 서버 설정을 확인하세요.');
+    console.warn('⚠️ 클라이언트 측 Gemini API 키가 설정되지 않았습니다.');
   }
   
   const cachedData = getCachedData(cacheKey);
@@ -311,28 +319,14 @@ async function fetchMusicInfoFromGeminiInternal(artist, album, track, signal) {
 
     let response;
 
-    if (USE_PROXY) {
-      const proxyRequestBody = {
-        apiKey: GEMINI_API_KEY,
-        requestBody: requestBody,
-        model: GEMINI_MODELS[currentModelIndex]
-      };
-
-      response = await fetch(PROXY_SERVER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(proxyRequestBody),
-        signal
-      });
-    } else {
-      const apiUrl = getGeminiApiUrl();
-      response = await fetch(`${apiUrl}?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-        signal
-      });
-    }
+    // 직접 API 호출
+    const apiUrl = getGeminiApiUrl();
+    response = await fetch(`${apiUrl}?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+      signal
+    });
 
     if (!response.ok) {
       const errorText = await response.text();

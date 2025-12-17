@@ -9,6 +9,8 @@ import ToggleSwitch from './components/ToggleSwitch';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import { useMusicInfoSettings } from './hooks/useMusicInfoSettings';
 import { Info } from 'lucide-react';
+import ApiKeyModal from './components/ApiKeyModal';
+import { setGeminiApiKey } from './services/geminiApi';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -170,6 +172,7 @@ function App() {
   const [likedTracks, setLikedTracks] = useState(new Set());
   const [isMuted, setIsMuted] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(0.7);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
   // 새로운 훅들
   const networkStatus = useNetworkStatus();
@@ -201,6 +204,32 @@ function App() {
 
   // localStorage에서 좋아요 데이터 로드
   useEffect(() => {
+    const checkApiKeys = async () => {
+      if (window.electronAPI) {
+        const keys = await window.electronAPI.getApiKeys();
+        
+        // Gemini 키가 있으면 설정 (필수)
+        if (keys && keys.geminiApiKey) {
+          setGeminiApiKey(keys.geminiApiKey);
+          
+          // Spotify 키가 없으면 모달 띄우기 (선택적 강제)
+          if (!keys.spotifyClientId || !keys.spotifyClientSecret) {
+             // 이미 Gemini 키는 있지만 Spotify 키 추가 입력을 유도하고 싶다면 여기서 true
+             // 사용자 경험상 귀찮을 수 있으니, Gemini 키만 있어도 넘어가되, 
+             // 설정 메뉴 등에서 추가할 수 있게 해야 함.
+             // 일단 최초 실행 시 둘 다 받는 것을 목표로 함.
+             // 만약 Gemini 키만 있고 Spotify 키가 없으면, 일단 모달을 안 띄우고(기존 사용자 배려)
+             // Gemini 키조차 없으면 띄운다.
+             // 하지만 "재설정" 기능이 없으므로, 둘 중 하나라도 없으면 띄우는 게 나을 수도 있다.
+             // 여기서는 Gemini 키가 없으면 띄우는 것으로 유지하되, 모달 내부에서 둘 다 입력받음.
+          }
+        } else {
+          setShowApiKeyModal(true);
+        }
+      }
+    };
+    checkApiKeys();
+
     const savedLikes = localStorage.getItem('likedTracks');
     if (savedLikes) {
       try {
@@ -217,7 +246,14 @@ function App() {
     const loadMusicFiles = async () => {
       try {
         if (window.electronAPI) {
-          const files = await window.electronAPI.getMusicFiles();
+          // 저장된 폴더가 있는지 확인
+          const savedFolder = await window.electronAPI.getMusicFolder();
+          
+          let files = [];
+          if (savedFolder) {
+            files = await window.electronAPI.getMusicFiles();
+          }
+          
           setMusicFiles(files);
           
           // 첫 번째 트랙을 기본 선택
@@ -246,6 +282,16 @@ function App() {
       }
     };
   }, [currentTrack]);
+
+  const handleSelectFolder = async () => {
+    if (window.electronAPI) {
+      const files = await window.electronAPI.selectMusicFolder();
+      if (files) {
+        setMusicFiles(files);
+        // 폴더 변경 시 재생 중단 및 초기화 (선택사항)
+      }
+    }
+  };
 
   // 오디오 분석기 설정
   useEffect(() => {
@@ -522,9 +568,23 @@ function App() {
   const shouldShowMusicInfo = musicInfoSettings.isInfoPanelEnabled && 
                              networkStatus.isOnline;
 
+  const handleSaveApiKeys = async (keys) => {
+    if (window.electronAPI) {
+      await window.electronAPI.saveApiKeys(keys);
+      setGeminiApiKey(keys.geminiApiKey);
+      setShowApiKeyModal(false);
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      {showApiKeyModal && (
+        <ApiKeyModal 
+          onSave={handleSaveApiKeys} 
+          onClose={() => setShowApiKeyModal(false)}
+        />
+      )}
       <AppContainer>
         <audio
           ref={audioRef}
@@ -547,6 +607,8 @@ function App() {
                 onSearchChange={setSearchQuery}
                 likedTracks={likedTracks}
                 onToggleLike={toggleLike}
+                onSelectFolder={handleSelectFolder}
+                onOpenSettings={() => setShowApiKeyModal(true)}
               />
             </LibrarySection>
             

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Search, Music, User, Album, Heart } from 'lucide-react';
+import { Search, Music, User, Album, Heart, FolderOpen, Settings } from 'lucide-react';
 
 const Container = styled.div`
   height: 100%;
@@ -197,7 +197,9 @@ function MusicLibrary({
   searchQuery, 
   onSearchChange,
   likedTracks,
-  onToggleLike
+  onToggleLike,
+  onSelectFolder,
+  onOpenSettings
 }) {
   const getArtworkData = (track) => {
     if (track.artwork && track.artwork.data) {
@@ -215,7 +217,17 @@ function MusicLibrary({
   return (
     <Container>
       <Header>
-        <Title>라이브러리</Title>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <Title style={{ marginBottom: 0 }}>라이브러리</Title>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <SortButton onClick={onSelectFolder} title="음악 폴더 선택">
+              <FolderOpen size={16} />
+            </SortButton>
+            <SortButton onClick={onOpenSettings} title="API 설정">
+              <Settings size={16} />
+            </SortButton>
+          </div>
+        </div>
         
         <SearchContainer>
           <SearchIcon />
@@ -300,11 +312,17 @@ function MusicLibrary({
             textAlign: 'center', 
             padding: '40px 20px', 
             color: '#666',
-            fontSize: '14px'
+            fontSize: '14px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px'
           }}>
-            music 폴더에 음악 파일이 없습니다.
-            <br />
-            MP3, WAV, FLAC, M4A 파일을 추가해보세요.
+            <p>음악 폴더를 선택해주세요.</p>
+            <SortButton onClick={onSelectFolder} style={{ padding: '8px 16px' }}>
+              <FolderOpen size={16} />
+              폴더 열기
+            </SortButton>
           </div>
         )}
       </TrackList>
